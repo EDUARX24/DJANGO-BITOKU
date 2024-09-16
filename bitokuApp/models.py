@@ -87,3 +87,25 @@ class doctor(models.Model):
         verbose_name_plural = "Doctores"
         db_table = "doctor"
         ordering = ['apellido_paterno', '-apellido_materno']
+
+class citaMedica(models.Model):
+    fechaCita = models.DateField(verbose_name="Fecha de la Cita")
+    horaCita = models.TimeField(verbose_name="Hora de la Cita")
+    estadoCita = models.IntegerField(default=1,verbose_name="Estado de la Cita")
+    motivoCancelacion = models.CharField(max_length=240,null=True,blank=True, verbose_name="Motivo de Cancelación")
+
+    #Relacion table paciente -> citaMedica & doctor -> citaMedica
+    paciente = models.ForeignKey(paciente, null=True, blank=True, on_delete=models.CASCADE)
+    doctor = models.ForeignKey(doctor, null=True, blank=True, on_delete=models.CASCADE)
+
+    def serializarTabla(self):
+        return self.fechaCita.strftime('%d/%m/%Y') + " " + self.horaCita.strftime('%H:%M')
+
+    def __str__(self):
+        return self.serializarTabla()
+
+    class Meta:
+        verbose_name = "Cita Médica"
+        verbose_name_plural = "Citas Médicas"
+        db_table = "citaMedica"
+        ordering = ['fechaCita', '-horaCita', '-estadoCita']	
