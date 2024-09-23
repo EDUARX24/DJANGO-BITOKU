@@ -25,6 +25,8 @@ SECRET_KEY = 'django-insecure-k8h9gp9emn3mczt7)b-0+)^%f!b0^iy-t_m^^iyxoto68c!t*y
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+MESSAGE_STORAGE = 'django.contrib.messages.storage.cookie.CookieStorage'
+
 ALLOWED_HOSTS = []
 
 
@@ -37,7 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'bitokuApp',
+    'bitokuApp.apps.BitokuappConfig',
 ]
 
 MIDDLEWARE = [
@@ -117,6 +119,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = 'static/'
+
+
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field

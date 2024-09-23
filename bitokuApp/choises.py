@@ -4,9 +4,3 @@ sexos = (
     ('F', 'Femenino'),
     ('O', 'Otro'),
 )
-
-roles = (
-    ('Adm', 'Administrador'),
-    ('Med', 'Medico'),
-    ('Ptn', 'Paciente'),
-)

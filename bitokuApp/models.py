@@ -1,40 +1,43 @@
 from django.db import models
 from .choises import sexos
-
+from django.contrib.auth.models import User
+from django.db.models.signals import post_save
 
 # Create your models here.
-class usuario(models.Model):
-   nombreUsuario = models.CharField(max_length=20, verbose_name="Nombre de Usuario")
-   contrasenia = models.CharField(max_length=20, verbose_name="Contraseña")
-   rol = models.CharField(max_length=20, verbose_name="Rol")
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    image = models.ImageField(default='users/usuario_defecto.jpg', upload_to='profile_pics/', verbose_name='Imagen de perfil')
+    sexo = models.CharField(max_length=1, choices=sexos, default='M')
+    telefono = models.CharField(max_length=10, blank=True, null=True)
+    cedula = models.CharField(max_length=30, blank=True, null=True)
 
-   #formato de impresion
-   def complete_User(self):
-        return self.nombreUsuario + " " + self.rol
-   
-   def __str__(self):
-      return self.complete_User()
-   
-   class Meta:
-        verbose_name = "Usuario"
-        verbose_name_plural = "Usuarios"
-        db_table = "usuario"
+    class Meta:
+        verbose_name = 'Perfil'
+        verbose_name_plural = 'Perfiles'
+        db_table = 'Perfil'
+        ordering = ['-id']
 
+    def __str__(self):
+        return f'{self.user.username} Profile'
+    
+def create_user_profile(sender, instance, created ,**kwargs): 
+    if created:
+        Profile.objects.create(user=instance)
+
+def save_user_profile(sender, instance, **kwargs):
+    instance.profile.save()
+
+post_save.connect(create_user_profile, sender=User)
+post_save.connect(save_user_profile, sender=User)
+
+#   METODOS DE LAS NUEVAS TABLAS
 class paciente(models.Model):
-    apellido_paterno = models.CharField(max_length=20, verbose_name="Apellido Paterno")
-    apellido_materno = models.CharField(max_length=20, verbose_name="Apellido Materno")
-    nombres = models.CharField(max_length=20, verbose_name="Nombres")
     fecha_nacimiento = models.DateField(verbose_name="Fecha de Nacimiento")
-    sexo = models.CharField(max_length=1, choices=sexos, default='F', verbose_name="Sexo")
-    cedula = models.CharField(max_length=60, verbose_name="Cédula")
-    telefonoPaciente = models.IntegerField(verbose_name="Teléfono")
-    emailPaciente =  models.CharField(max_length=50, verbose_name="Email")
-
     #Relacion con la tabla usuario
-    usuario = models.ForeignKey(usuario,null=True, blank=True, on_delete=models.CASCADE)
+    usuario = models.ForeignKey(Profile,null=True, blank=True, on_delete=models.CASCADE)
 
     def nombre_completo(self):
-        return self.apellido_paterno + " " + self.apellido_materno + " " + self.nombres
+        return self.fecha_nacimiento.strftime('%d/%m/%Y')
     
     def __str__(self):
         return self.nombre_completo()
@@ -43,7 +46,6 @@ class paciente(models.Model):
         verbose_name = "Paciente"
         verbose_name_plural = "Pacientes"
         db_table = "paciente"
-        ordering = ['apellido_paterno', '-apellido_materno']
 
 
 class especialidad(models.Model):
@@ -73,7 +75,7 @@ class doctor(models.Model):
     cedula = models.CharField(max_length=50, verbose_name="Cédula")
     
     #Relacion table Doctor -> Usuario & Doctor -> Especialidad
-    usuario =  models.ForeignKey(usuario, null=True, blank=True, on_delete=models.CASCADE)
+    usuario =  models.ForeignKey(Profile, null=True, blank=True, on_delete=models.CASCADE)
     especialidad = models.ForeignKey(especialidad, null=True, blank=True, on_delete=models.CASCADE)  
 
     def nombre_completo(self):
@@ -108,4 +110,4 @@ class citaMedica(models.Model):
         verbose_name = "Cita Médica"
         verbose_name_plural = "Citas Médicas"
         db_table = "citaMedica"
-        ordering = ['fechaCita', '-horaCita', '-estadoCita']	
+        ordering = ['fechaCita', '-horaCita', '-estadoCita']
